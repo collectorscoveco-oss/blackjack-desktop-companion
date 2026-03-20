@@ -1,0 +1,10 @@
+{
+  "name": "mission-control-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local Mission Control dashboard for OpenClaw system status, security, and operations.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

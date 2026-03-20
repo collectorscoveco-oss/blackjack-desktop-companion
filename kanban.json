@@ -1,0 +1,23 @@
+{
+  "Backlog": [
+    {
+      "id": "task-1",
+      "title": "Wire deeper security telemetry",
+      "description": "Add historical trends, remediation notes, and deeper probe visibility."
+    },
+    {
+      "id": "task-2",
+      "title": "Add auth for multi-user mode",
+      "description": "Prepare the dashboard for future SaaS or shared-team access."
+    }
+  ],
+  "In Progress": [
+    {
+      "id": "task-3",
+      "title": "Mission Control MVP",
+      "description": "Status, metrics, security audit summary, and local Kanban board."
+    }
+  ],
+  "Blocked": [],
+  "Complete": []
+}
