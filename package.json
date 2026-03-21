@@ -1,10 +1,51 @@
 {
-  "name": "mission-control-dashboard",
-  "version": "0.1.0",
+  "name": "blackjack-desktop-companion",
+  "version": "2.0.0",
   "private": true,
-  "description": "Local Mission Control dashboard for OpenClaw system status, security, and operations.",
-  "main": "server.js",
+  "description": "Electron desktop blackjack companion with embedded stream viewer and local basic strategy assistant.",
+  "main": "electron/main.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "electron .",
+    "dev": "electron .",
+    "dist": "electron-builder --win nsis",
+    "dist:win": "electron-builder --win nsis"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "ai.openclaw.blackjackdesktop",
+    "productName": "Blackjack Desktop Companion",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "public/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Blackjack Desktop Companion"
+    }
   }
 }

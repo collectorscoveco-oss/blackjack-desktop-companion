@@ -1,0 +1,70 @@
+{
+  "drivers": [
+    {
+      "id": "drv_maria",
+      "name": "Maria",
+      "active": true,
+      "createdAt": "2026-03-20T06:05:08.697Z"
+    },
+    {
+      "id": "drv_james",
+      "name": "James",
+      "active": true,
+      "createdAt": "2026-03-20T06:05:08.697Z"
+    },
+    {
+      "id": "drv_luis",
+      "name": "Luis",
+      "active": true,
+      "createdAt": "2026-03-20T06:05:08.697Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "fa2fa54a-cb20-4041-aab6-9be5ab851e1d",
+      "businessDate": "2026-03-20",
+      "driverId": "drv_maria",
+      "driverName": "Maria",
+      "orderNumber": "1001",
+      "orderTotal": 17.6,
+      "customerPaid": 20,
+      "createdAt": "2026-03-20T06:05:08.697Z",
+      "assumedBill": 20,
+      "giveDriver": 2.4,
+      "backToRegister": 17.6,
+      "driverTip": 0,
+      "updatedAt": "2026-03-20T06:05:08.697Z"
+    },
+    {
+      "id": "f8c40ac6-e22b-487f-b4df-abf2e8f9efab",
+      "businessDate": "2026-03-20",
+      "driverId": "drv_james",
+      "driverName": "James",
+      "orderNumber": "1002",
+      "orderTotal": 28.75,
+      "customerPaid": 50,
+      "createdAt": "2026-03-20T06:05:08.697Z",
+      "assumedBill": 40,
+      "giveDriver": 11.25,
+      "backToRegister": 28.75,
+      "driverTip": 10,
+      "updatedAt": "2026-03-20T06:05:08.697Z"
+    },
+    {
+      "id": "ebc809ab-fdd5-4a72-82f3-5412fcccc939",
+      "businessDate": "2026-03-20",
+      "driverId": "drv_luis",
+      "driverName": "Luis",
+      "orderNumber": "1003",
+      "orderTotal": 41.1,
+      "customerPaid": 60,
+      "createdAt": "2026-03-20T06:05:08.697Z",
+      "assumedBill": 60,
+      "giveDriver": 18.9,
+      "backToRegister": 41.1,
+      "driverTip": 0,
+      "updatedAt": "2026-03-20T06:05:08.697Z"
+    }
+  ],
+  "dailySummaries": []
+}
