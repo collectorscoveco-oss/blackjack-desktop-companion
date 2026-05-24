@@ -15,6 +15,14 @@ test('packaged app is configured to publish updates from GitHub Releases', () =>
   ]);
 });
 
+test('Windows build artifact includes updater metadata files required by electron-updater', async () => {
+  const workflow = await readFile(new URL('../.github/workflows/build-windows.yml', import.meta.url), 'utf8');
+
+  assert.match(workflow, /dist\/\*\.exe/);
+  assert.match(workflow, /dist\/latest\.yml/);
+  assert.match(workflow, /dist\/\*\.exe\.blockmap/);
+});
+
 test('renderer exposes an update dropdown in the top toolbar', async () => {
   const appSource = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
 
