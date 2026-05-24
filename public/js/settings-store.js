@@ -12,6 +12,18 @@ const defaults = {
   history: [],
   playerCards: [],
   dealerCard: '',
+  screenSetup: {
+    active: false,
+    selectedTarget: 'player',
+    regions: {
+      player: null,
+      dealer: null
+    }
+  },
+  capturePreview: {
+    player: null,
+    dealer: null
+  },
   rules: {
     decks: 6,
     hitSoft17: true,
@@ -37,6 +49,20 @@ export async function loadSettings() {
     ...defaults,
     ...desktop,
     ...local,
+    screenSetup: {
+      ...defaults.screenSetup,
+      ...(desktop.screenSetup || {}),
+      ...(local.screenSetup || {}),
+      regions: {
+        ...defaults.screenSetup.regions,
+        ...((desktop.screenSetup && desktop.screenSetup.regions) || {}),
+        ...((local.screenSetup && local.screenSetup.regions) || {})
+      }
+    },
+    capturePreview: {
+      ...defaults.capturePreview,
+      ...(local.capturePreview || {})
+    },
     rules: {
       ...defaults.rules,
       ...(desktop.rules || {}),
@@ -58,6 +84,8 @@ export async function saveSettings(state) {
     history: state.history,
     playerCards: state.playerCards,
     dealerCard: state.dealerCard,
+    screenSetup: state.screenSetup,
+    capturePreview: state.capturePreview,
     rules: state.rules
   };
 
@@ -69,7 +97,8 @@ export async function saveSettings(state) {
       compactMode: state.compactMode,
       overlayMode: state.overlayMode,
       streamUrl: state.streamUrl,
-      alwaysOnTop: state.alwaysOnTop
+      alwaysOnTop: state.alwaysOnTop,
+      screenSetup: state.screenSetup
     });
   }
 }

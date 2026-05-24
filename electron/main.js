@@ -7,6 +7,14 @@ const DEFAULT_SETTINGS = {
   alwaysOnTop: false,
   compactMode: false,
   overlayMode: false,
+  screenSetup: {
+    active: false,
+    selectedTarget: 'player',
+    regions: {
+      player: null,
+      dealer: null
+    }
+  },
   streamUrl: 'https://www.youtube.com/'
 };
 
