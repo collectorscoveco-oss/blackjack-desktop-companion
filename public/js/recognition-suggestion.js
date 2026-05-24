@@ -28,3 +28,12 @@ export function applyRecognitionSuggestion(state, suggestion) {
   state.dealerCard = suggestion.dealerCard;
   return state;
 }
+
+export function autoApplyRecognitionSuggestion(state) {
+  if (!state?.recognitionSuggestion) return false;
+  const suggestion = state.recognitionSuggestion;
+  applyRecognitionSuggestion(state, suggestion);
+  state.recognitionSuggestion = null;
+  state.autoRecognitionStatus = `Auto-filled player ${state.playerCards.join(',')} vs dealer ${state.dealerCard}.`;
+  return true;
+}

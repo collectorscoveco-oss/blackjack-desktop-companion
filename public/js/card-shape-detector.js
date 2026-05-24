@@ -31,6 +31,29 @@ function isCardSized(bounds, imageData, options = {}) {
     && aspect <= 0.95;
 }
 
+function splitOverlappingCardBounds(bounds, imageData, options = {}) {
+  const aspect = bounds.width / bounds.height;
+  if (aspect <= 0.95 || aspect > 2.8) return [];
+  if (bounds.height < (options.minHeight ?? 28)) return [];
+  const estimatedCardWidth = Math.round(bounds.height * 0.68);
+  const count = Math.max(2, Math.min(3, Math.round(bounds.width / estimatedCardWidth)));
+  if (count < 2 || estimatedCardWidth < (options.minWidth ?? 18)) return [];
+  const step = count === 1 ? 0 : (bounds.width - estimatedCardWidth) / (count - 1);
+  const split = [];
+  for (let index = 0; index < count; index += 1) {
+    const cardBounds = {
+      x: Math.round(bounds.x + index * step),
+      y: bounds.y,
+      width: estimatedCardWidth,
+      height: bounds.height
+    };
+    if (isCardSized(cardBounds, imageData, { ...options, minAreaRatio: 0 })) {
+      split.push(cardBounds);
+    }
+  }
+  return split;
+}
+
 export function detectBrightCardShapes(imageData, options = {}) {
   if (!imageData?.data || !imageData.width || !imageData.height) return [];
   const { width, height, data } = imageData;
@@ -70,6 +93,11 @@ export function detectBrightCardShapes(imageData, options = {}) {
       const bounds = componentBounds(component);
       if (isCardSized(bounds, imageData, options)) {
         shapes.push({ bounds, pixels: component.pixels });
+      } else {
+        const splitBoundsList = splitOverlappingCardBounds(bounds, imageData, options);
+        for (const splitBounds of splitBoundsList) {
+          shapes.push({ bounds: splitBounds, pixels: component.pixels / splitBoundsList.length });
+        }
       }
     }
   }

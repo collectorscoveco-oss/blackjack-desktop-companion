@@ -11,7 +11,9 @@ const {
 
 const TEST_RANK_GLYPHS = {
   A: ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
+  5: ['11111', '10000', '10000', '11110', '00001', '00001', '11110'],
   6: ['01110', '10000', '10000', '11110', '10001', '10001', '01110'],
+  9: ['01110', '10001', '10001', '01111', '00001', '00001', '01110'],
   10: ['01010', '11010', '01010', '01010', '01010', '01010', '11110'],
   K: ['10001', '10010', '10100', '11000', '10100', '10010', '10001']
 };
@@ -154,6 +156,23 @@ test('ignores unreadable dealer card backs when one dealer upcard rank is readab
   assert.deepEqual(suggestion.playerCards, ['6', 'K']);
   assert.equal(suggestion.dealerCard, 'K');
   assert.equal(suggestion.summary, 'Auto-detected player 6,K vs dealer K. Confirm to use this hand.');
+});
+
+test('detects overlapping player cards as separate readable ranks for auto-fill', () => {
+  const playerImageData = makeImageData(160, 90);
+  paintRect(playerImageData, { x: 12, y: 14, width: 42, height: 62 });
+  drawRank(playerImageData, '10', 18, 19, 3);
+  paintRect(playerImageData, { x: 42, y: 14, width: 42, height: 62 });
+  drawRank(playerImageData, '5', 48, 19, 3);
+  const dealerImageData = makeCardRegionWithRanks(['9']);
+
+  const playerShapes = detectBrightCardShapes(playerImageData);
+  const dealerShapes = detectBrightCardShapes(dealerImageData, { minAreaRatio: 0.015 });
+  const suggestion = buildAutoRecognitionSuggestion({ playerImageData, dealerImageData, playerShapes, dealerShapes });
+
+  assert.equal(playerShapes.length, 2);
+  assert.deepEqual(suggestion.playerCards, ['10', '5']);
+  assert.equal(suggestion.dealerCard, '9');
 });
 
 test('does not build an auto suggestion when a rank is unreadable', () => {
