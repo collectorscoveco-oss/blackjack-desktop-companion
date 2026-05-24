@@ -1,7 +1,7 @@
 import { initBrowserPane } from './js/browser-pane.js';
 import { loadSettings, saveSettings } from './js/settings-store.js';
 import { renderStrategyPane } from './js/ui-controls.js';
-import { detectBrightCardShapes, summarizeCardShapeScan } from './js/card-shape-detector.js';
+import { buildAutoRecognitionSuggestion, detectBrightCardShapes, summarizeCardShapeScan } from './js/card-shape-detector.js';
 import { applyRecognitionSuggestion } from './js/recognition-suggestion.js';
 import { formatUpdateStatusMessage } from './js/update-status.js';
 
@@ -213,9 +213,10 @@ async function scanCapturedCards() {
   ]);
   const playerShapes = detectBrightCardShapes(playerImageData);
   const dealerShapes = detectBrightCardShapes(dealerImageData, { minAreaRatio: 0.015 });
+  const suggestion = buildAutoRecognitionSuggestion({ playerImageData, dealerImageData, playerShapes, dealerShapes });
   state.cardShapeScan = { playerShapes, dealerShapes };
-  state.recognitionSuggestion = null;
-  elements.captureStatus.textContent = summarizeCardShapeScan({ playerShapes, dealerShapes });
+  state.recognitionSuggestion = suggestion;
+  elements.captureStatus.textContent = summarizeCardShapeScan({ playerShapes, dealerShapes, suggestion });
   renderScreenSetup();
   persistSoon();
 }
