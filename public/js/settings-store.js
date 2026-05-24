@@ -86,6 +86,8 @@ export async function saveSettings(state) {
     dealerCard: state.dealerCard,
     screenSetup: state.screenSetup,
     capturePreview: state.capturePreview,
+    cardShapeScan: state.cardShapeScan,
+    recognitionSuggestion: state.recognitionSuggestion,
     rules: state.rules
   };
 

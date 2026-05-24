@@ -1,6 +1,7 @@
 import { initBrowserPane } from './js/browser-pane.js';
 import { loadSettings, saveSettings } from './js/settings-store.js';
 import { renderStrategyPane } from './js/ui-controls.js';
+import { detectBrightCardShapes, summarizeCardShapeScan } from './js/card-shape-detector.js';
 import { applyRecognitionSuggestion } from './js/recognition-suggestion.js';
 import { formatUpdateStatusMessage } from './js/update-status.js';
 
@@ -18,6 +19,7 @@ app.innerHTML = `
         <button class="ui-btn secondary ${state.overlayMode ? 'active' : ''}" id="overlay-mode-btn">${state.overlayMode ? 'Full app' : 'Overlay mode'}</button>
         <button class="ui-btn secondary ${state.screenSetup?.active ? 'active' : ''}" id="screen-setup-btn">${state.screenSetup?.active ? 'Done setup' : 'Screen setup'}</button>
         <button class="ui-btn secondary" id="capture-once-btn">Capture once</button>
+        <button class="ui-btn secondary" id="scan-cards-btn">Scan cards</button>
         <button class="ui-btn secondary" id="toggle-pane-btn">${state.compactMode ? 'Show strategy' : 'Hide strategy'}</button>
         <button class="ui-btn secondary ${state.alwaysOnTop ? 'active' : ''}" id="always-on-top-btn">Always on top</button>
         <div class="update-menu">
@@ -86,6 +88,7 @@ const elements = {
   webviewWrap: document.getElementById('webview-wrap'),
   screenSetupBtn: document.getElementById('screen-setup-btn'),
   captureOnceBtn: document.getElementById('capture-once-btn'),
+  scanCardsBtn: document.getElementById('scan-cards-btn'),
   screenSetupLayer: document.getElementById('screen-setup-layer'),
   selectPlayerRegion: document.getElementById('select-player-region'),
   selectDealerRegion: document.getElementById('select-dealer-region'),
@@ -187,6 +190,36 @@ async function captureSelectedRegions() {
   persistSoon();
 }
 
+async function imageDataFromDataUrl(dataUrl) {
+  const image = new Image();
+  image.src = dataUrl;
+  await image.decode();
+  const canvas = document.createElement('canvas');
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  context.drawImage(image, 0, 0);
+  return context.getImageData(0, 0, canvas.width, canvas.height);
+}
+
+async function scanCapturedCards() {
+  if (!state.capturePreview?.player || !state.capturePreview?.dealer) {
+    elements.captureStatus.textContent = 'Capture player/dealer regions before scanning.';
+    return;
+  }
+  const [playerImageData, dealerImageData] = await Promise.all([
+    imageDataFromDataUrl(state.capturePreview.player),
+    imageDataFromDataUrl(state.capturePreview.dealer)
+  ]);
+  const playerShapes = detectBrightCardShapes(playerImageData);
+  const dealerShapes = detectBrightCardShapes(dealerImageData, { minAreaRatio: 0.015 });
+  state.cardShapeScan = { playerShapes, dealerShapes };
+  state.recognitionSuggestion = null;
+  elements.captureStatus.textContent = summarizeCardShapeScan({ playerShapes, dealerShapes });
+  renderScreenSetup();
+  persistSoon();
+}
+
 function render() {
   elements.splitLayout.style.setProperty('--left-ratio', state.compactMode ? 1 : state.dividerRatio);
   document.querySelector('.desktop-shell').classList.toggle('compact-mode', state.compactMode);
@@ -275,6 +308,12 @@ elements.selectDealerRegion.addEventListener('click', (event) => {
 elements.captureOnceBtn.addEventListener('click', () => {
   captureSelectedRegions().catch((error) => {
     elements.captureStatus.textContent = `Capture failed: ${error.message}`;
+  });
+});
+
+elements.scanCardsBtn.addEventListener('click', () => {
+  scanCapturedCards().catch((error) => {
+    elements.captureStatus.textContent = `Scan failed: ${error.message}`;
   });
 });
 
