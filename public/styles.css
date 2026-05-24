@@ -25,6 +25,11 @@ input { user-select: text; }
 .eyebrow { color: var(--blue); font-size: .76rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .app-header h1, .strategy-topbar h2, p { margin: 0; }
 .toolbar-actions, .top-actions, .token-row, .toggle-grid, .inline-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.update-menu { display: flex; align-items: center; gap: 8px; max-width: 320px; }
+.update-menu select { min-height: 42px; }
+.update-status { max-width: 180px; color: var(--muted); font-size: .78rem; line-height: 1.2; }
+.update-status[data-status="downloaded"] { color: #86efac; }
+.update-status[data-status="error"] { color: #fca5a5; }
 .split-layout { display: grid; grid-template-columns: minmax(420px, calc(var(--left-ratio, .62) * 100%)) 10px minmax(360px, 1fr); gap: 0; min-height: calc(100vh - 108px); }
 .desktop-shell.compact-mode .split-layout { grid-template-columns: 1fr 0 0; }
 .desktop-shell.overlay-mode { max-width: 620px; min-height: auto; padding: 10px; background: transparent; }

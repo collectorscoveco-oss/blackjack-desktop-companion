@@ -1,6 +1,6 @@
 {
   "name": "blackjack-overlay",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "description": "Electron desktop blackjack overlay with manual basic strategy assistant.",
   "main": "electron/main.js",
@@ -24,6 +24,13 @@
     "directories": {
       "output": "dist"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "collectorscoveco-oss",
+        "repo": "blackjack-desktop-companion"
+      }
+    ],
     "files": [
       "electron/**/*",
       "public/**/*",
@@ -48,5 +55,8 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Blackjack Overlay"
     }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.3"
   }
 }

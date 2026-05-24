@@ -18,6 +18,15 @@ app.innerHTML = `
         <button class="ui-btn secondary" id="capture-once-btn">Capture once</button>
         <button class="ui-btn secondary" id="toggle-pane-btn">${state.compactMode ? 'Show strategy' : 'Hide strategy'}</button>
         <button class="ui-btn secondary ${state.alwaysOnTop ? 'active' : ''}" id="always-on-top-btn">Always on top</button>
+        <div class="update-menu">
+          <select id="update-menu-select" aria-label="Program updates">
+            <option value="">Updates</option>
+            <option value="check">Check for updates</option>
+            <option value="install">Install downloaded update</option>
+            <option value="releases">Open release page</option>
+          </select>
+          <span class="update-status" id="update-status">Updates ready</span>
+        </div>
       </div>
     </header>
 
@@ -82,6 +91,8 @@ const elements = {
   togglePaneBtn: document.getElementById('toggle-pane-btn'),
   overlayModeBtn: document.getElementById('overlay-mode-btn'),
   alwaysOnTopBtn: document.getElementById('always-on-top-btn'),
+  updateMenuSelect: document.getElementById('update-menu-select'),
+  updateStatus: document.getElementById('update-status'),
   webview: document.getElementById('stream-webview'),
   urlInput: document.getElementById('stream-url'),
   backBtn: document.getElementById('back-btn'),
@@ -94,6 +105,12 @@ let saveTimer;
 function persistSoon() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => saveSettings(state), 120);
+}
+
+function updateProgramStatus(status) {
+  if (!status) return;
+  elements.updateStatus.textContent = status.message || 'Update status changed.';
+  elements.updateStatus.dataset.status = status.status || 'idle';
 }
 
 function renderRegionBox(box, region) {
@@ -173,6 +190,15 @@ function render() {
 
 initBrowserPane({ state, elements, onStateChange: persistSoon });
 render();
+
+if (window.desktopAPI?.onUpdateStatus) {
+  window.desktopAPI.onUpdateStatus(updateProgramStatus);
+}
+if (window.desktopAPI?.getUpdateStatus) {
+  window.desktopAPI.getUpdateStatus().then(updateProgramStatus).catch(() => {
+    updateProgramStatus({ status: 'unavailable', message: 'Update checker is unavailable in this build.' });
+  });
+}
 
 let dragging = false;
 elements.splitter.addEventListener('mousedown', () => {
@@ -295,6 +321,29 @@ elements.alwaysOnTopBtn.addEventListener('click', async () => {
   }
   render();
   persistSoon();
+});
+
+elements.updateMenuSelect.addEventListener('change', async () => {
+  const action = elements.updateMenuSelect.value;
+  elements.updateMenuSelect.value = '';
+  if (!action) return;
+  try {
+    if (action === 'check') {
+      updateProgramStatus({ status: 'checking', message: 'Checking for updates…' });
+      const status = await window.desktopAPI?.checkForUpdates?.();
+      updateProgramStatus(status);
+    }
+    if (action === 'install') {
+      const status = await window.desktopAPI?.installUpdate?.();
+      updateProgramStatus(status);
+    }
+    if (action === 'releases') {
+      await window.desktopAPI?.openReleases?.();
+      updateProgramStatus({ status: 'releases', message: 'Opened the latest release page.' });
+    }
+  } catch (error) {
+    updateProgramStatus({ status: 'error', message: `Update action failed: ${error.message}` });
+  }
 });
 
 window.addEventListener('keydown', (event) => {
