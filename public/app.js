@@ -1,6 +1,8 @@
 import { initBrowserPane } from './js/browser-pane.js';
 import { loadSettings, saveSettings } from './js/settings-store.js';
 import { renderStrategyPane } from './js/ui-controls.js';
+import { applyRecognitionSuggestion } from './js/recognition-suggestion.js';
+import { formatUpdateStatusMessage } from './js/update-status.js';
 
 const state = await loadSettings();
 
@@ -61,6 +63,11 @@ app.innerHTML = `
             <div><div class="tiny-copy">Player region</div><img id="player-capture-preview" alt="Player capture preview" /></div>
             <div><div class="tiny-copy">Dealer region</div><img id="dealer-capture-preview" alt="Dealer capture preview" /></div>
           </div>
+          <div class="recognition-confirmation hidden" id="recognition-confirmation">
+            <span id="recognition-summary">No detected hand yet.</span>
+            <button class="mini-btn" id="use-recognition-btn">Use detected hand</button>
+            <button class="mini-btn" id="dismiss-recognition-btn">Dismiss</button>
+          </div>
         </div>
         <div class="browser-note">Viewer only. No page injection, no automation, no interaction with the game.</div>
       </section>
@@ -88,6 +95,10 @@ const elements = {
   captureStatus: document.getElementById('capture-status'),
   playerCapturePreview: document.getElementById('player-capture-preview'),
   dealerCapturePreview: document.getElementById('dealer-capture-preview'),
+  recognitionConfirmation: document.getElementById('recognition-confirmation'),
+  recognitionSummary: document.getElementById('recognition-summary'),
+  useRecognitionBtn: document.getElementById('use-recognition-btn'),
+  dismissRecognitionBtn: document.getElementById('dismiss-recognition-btn'),
   togglePaneBtn: document.getElementById('toggle-pane-btn'),
   overlayModeBtn: document.getElementById('overlay-mode-btn'),
   alwaysOnTopBtn: document.getElementById('always-on-top-btn'),
@@ -109,7 +120,7 @@ function persistSoon() {
 
 function updateProgramStatus(status) {
   if (!status) return;
-  elements.updateStatus.textContent = status.message || 'Update status changed.';
+  elements.updateStatus.textContent = formatUpdateStatusMessage(status);
   elements.updateStatus.dataset.status = status.status || 'idle';
 }
 
@@ -136,6 +147,8 @@ function renderScreenSetup() {
   renderRegionBox(elements.dealerRegionBox, setup.regions.dealer);
   elements.playerCapturePreview.src = state.capturePreview?.player || '';
   elements.dealerCapturePreview.src = state.capturePreview?.dealer || '';
+  elements.recognitionConfirmation.classList.toggle('hidden', !state.recognitionSuggestion);
+  elements.recognitionSummary.textContent = state.recognitionSuggestion?.summary || 'No detected hand yet.';
 }
 
 function regionToCaptureRect(region, imageSize, displaySize) {
@@ -168,7 +181,8 @@ async function captureSelectedRegions() {
     player: image.crop(playerRect).toDataURL(),
     dealer: image.crop(dealerRect).toDataURL()
   };
-  elements.captureStatus.textContent = 'Captured selected regions. Rank reading comes next.';
+  state.recognitionSuggestion = null;
+  elements.captureStatus.textContent = 'Captured selected regions. Rank confirmation flow is ready; image detector comes next.';
   renderScreenSetup();
   persistSoon();
 }
@@ -262,6 +276,19 @@ elements.captureOnceBtn.addEventListener('click', () => {
   captureSelectedRegions().catch((error) => {
     elements.captureStatus.textContent = `Capture failed: ${error.message}`;
   });
+});
+
+elements.useRecognitionBtn.addEventListener('click', () => {
+  applyRecognitionSuggestion(state, state.recognitionSuggestion);
+  state.recognitionSuggestion = null;
+  render();
+  persistSoon();
+});
+
+elements.dismissRecognitionBtn.addEventListener('click', () => {
+  state.recognitionSuggestion = null;
+  renderScreenSetup();
+  persistSoon();
 });
 
 let drawingRegion = null;
