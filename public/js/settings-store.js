@@ -9,6 +9,7 @@ const defaults = {
   chartVisible: false,
   trainingMode: true,
   alwaysOnTop: false,
+  autoScanMode: false,
   history: [],
   playerCards: [],
   dealerCard: '',
@@ -81,6 +82,7 @@ export async function saveSettings(state) {
     chartVisible: state.chartVisible,
     trainingMode: state.trainingMode,
     alwaysOnTop: state.alwaysOnTop,
+    autoScanMode: state.autoScanMode,
     history: state.history,
     playerCards: state.playerCards,
     dealerCard: state.dealerCard,
@@ -100,6 +102,7 @@ export async function saveSettings(state) {
       overlayMode: state.overlayMode,
       streamUrl: state.streamUrl,
       alwaysOnTop: state.alwaysOnTop,
+      autoScanMode: state.autoScanMode,
       screenSetup: state.screenSetup
     });
   }

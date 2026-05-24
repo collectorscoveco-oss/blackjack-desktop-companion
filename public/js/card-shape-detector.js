@@ -187,12 +187,19 @@ export function detectCardRank(imageData, shape, options = {}) {
   return { rank: best.rank, confidence: Number(best.confidence.toFixed(2)) };
 }
 
+function trimLeadingUnreadablePlayerDetections(detections) {
+  const firstReadableIndex = detections.findIndex((detection) => detection.rank);
+  return firstReadableIndex < 0 ? [] : detections.slice(firstReadableIndex);
+}
+
 export function buildAutoRecognitionSuggestion({ playerImageData, dealerImageData, playerShapes = [], dealerShapes = [] } = {}) {
-  const playerRanks = playerShapes.map((shape) => detectCardRank(playerImageData, shape)?.rank);
+  const playerDetections = playerShapes.map((shape) => ({ shape, rank: detectCardRank(playerImageData, shape)?.rank || null }));
+  const playerHandDetections = trimLeadingUnreadablePlayerDetections(playerDetections);
+  const playerRanks = playerHandDetections.map((detection) => detection.rank);
   const dealerRanks = dealerShapes
     .map((shape) => detectCardRank(dealerImageData, shape)?.rank)
     .filter(Boolean);
-  if (playerRanks.length === 0 || dealerRanks.length !== 1 || playerRanks.some((rank) => !rank)) {
+  if (playerRanks.length < 2 || dealerRanks.length !== 1 || playerRanks.some((rank) => !rank)) {
     return null;
   }
   return {

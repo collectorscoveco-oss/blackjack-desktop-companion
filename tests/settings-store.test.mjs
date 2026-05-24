@@ -29,6 +29,7 @@ test('settings include default screen setup regions for future capture workflow'
   assert.deepEqual(state.screenSetup.regions.dealer, null);
   assert.deepEqual(state.capturePreview.player, null);
   assert.deepEqual(state.capturePreview.dealer, null);
+  assert.equal(state.autoScanMode, false);
 });
 
 test('settings persist screen setup regions locally and to Electron desktop settings', async () => {
@@ -53,6 +54,7 @@ test('settings persist screen setup regions locally and to Electron desktop sett
     chartVisible: false,
     trainingMode: true,
     alwaysOnTop: false,
+    autoScanMode: true,
     history: [],
     playerCards: [],
     dealerCard: '',
@@ -72,5 +74,7 @@ test('settings persist screen setup regions locally and to Electron desktop sett
 
   const stored = JSON.parse(globalThis.localStorage.dump()['blackjack-desktop-renderer-v1']);
   assert.deepEqual(stored.screenSetup, state.screenSetup);
+  assert.equal(stored.autoScanMode, true);
   assert.deepEqual(desktopPatches.at(-1).screenSetup, state.screenSetup);
+  assert.equal(desktopPatches.at(-1).autoScanMode, true);
 });

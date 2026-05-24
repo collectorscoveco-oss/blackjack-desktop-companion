@@ -32,6 +32,16 @@ test('renderer exposes an update dropdown in the top toolbar', async () => {
   assert.match(appSource, /Install downloaded update/);
 });
 
+test('renderer exposes an auto scan toggle that repeatedly captures and scans', async () => {
+  const appSource = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
+
+  assert.match(appSource, /id="auto-scan-btn"/);
+  assert.match(appSource, /setInterval\(runAutoScanTick, 1200\)/);
+  assert.match(appSource, /await captureSelectedRegions\(\)/);
+  assert.match(appSource, /await scanCapturedCards\(\)/);
+  assert.match(appSource, /Auto scan is running/);
+});
+
 test('update control layout keeps the dropdown clickable and status readable', async () => {
   const css = await readFile(new URL('../public/styles.css', import.meta.url), 'utf8');
 

@@ -11,6 +11,7 @@ const {
 
 const TEST_RANK_GLYPHS = {
   A: ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
+  2: ['01110', '10001', '00001', '00010', '00100', '01000', '11111'],
   5: ['11111', '10000', '10000', '11110', '00001', '00001', '11110'],
   6: ['01110', '10000', '10000', '11110', '10001', '10001', '01110'],
   9: ['01110', '10001', '10001', '01111', '00001', '00001', '01110'],
@@ -175,9 +176,38 @@ test('detects overlapping player cards as separate readable ranks for auto-fill'
   assert.equal(suggestion.dealerCard, '9');
 });
 
-test('does not build an auto suggestion when a rank is unreadable', () => {
-  const playerImageData = makeCardRegionWithRanks(['K']);
-  const dealerImageData = makeImageData(100, 80, [{ x: 12, y: 14, width: 42, height: 62 }]);
+test('filters noisy score-like card shapes and builds a suggestion from readable real cards', () => {
+  const playerImageData = makeImageData(280, 120);
+  // Score/overlay text in the live table can look bright and card-sized, but has no corner rank.
+  paintRect(playerImageData, { x: 8, y: 8, width: 34, height: 50 }, [240, 240, 240]);
+  paintRect(playerImageData, { x: 52, y: 10, width: 32, height: 48 }, [240, 240, 240]);
+  paintRect(playerImageData, { x: 118, y: 32, width: 42, height: 62 });
+  drawRank(playerImageData, 'K', 124, 37, 3);
+  paintRect(playerImageData, { x: 172, y: 28, width: 42, height: 62 });
+  drawRank(playerImageData, '2', 178, 33, 3);
+
+  const dealerImageData = makeImageData(220, 90);
+  paintRect(dealerImageData, { x: 64, y: 18, width: 42, height: 62 }, [20, 120, 220]);
+  paintRect(dealerImageData, { x: 96, y: 14, width: 42, height: 62 });
+  drawRank(dealerImageData, '6', 102, 19, 3);
+
+  const playerShapes = detectBrightCardShapes(playerImageData);
+  const dealerShapes = detectBrightCardShapes(dealerImageData, { minAreaRatio: 0.015 });
+  const suggestion = buildAutoRecognitionSuggestion({ playerImageData, dealerImageData, playerShapes, dealerShapes });
+
+  assert.equal(playerShapes.length, 4);
+  assert.equal(dealerShapes.length, 1);
+  assert.deepEqual(suggestion.playerCards, ['K', '2']);
+  assert.equal(suggestion.dealerCard, '6');
+});
+
+test('does not build an auto suggestion when a real player card rank is unreadable', () => {
+  const playerImageData = makeImageData(160, 90, [
+    { x: 12, y: 14, width: 42, height: 62 },
+    { x: 72, y: 14, width: 42, height: 62 }
+  ]);
+  drawRank(playerImageData, 'K', 18, 19, 3);
+  const dealerImageData = makeCardRegionWithRanks(['6']);
   const playerShapes = detectBrightCardShapes(playerImageData);
   const dealerShapes = detectBrightCardShapes(dealerImageData, { minAreaRatio: 0.015 });
 

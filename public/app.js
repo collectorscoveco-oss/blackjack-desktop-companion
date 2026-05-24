@@ -20,6 +20,7 @@ app.innerHTML = `
         <button class="ui-btn secondary ${state.screenSetup?.active ? 'active' : ''}" id="screen-setup-btn">${state.screenSetup?.active ? 'Done setup' : 'Screen setup'}</button>
         <button class="ui-btn secondary" id="capture-once-btn">Capture once</button>
         <button class="ui-btn secondary" id="scan-cards-btn">Scan cards</button>
+        <button class="ui-btn secondary ${state.autoScanMode ? 'active' : ''}" id="auto-scan-btn">${state.autoScanMode ? 'Auto scan on' : 'Auto scan'}</button>
         <button class="ui-btn secondary" id="toggle-pane-btn">${state.compactMode ? 'Show strategy' : 'Hide strategy'}</button>
         <button class="ui-btn secondary ${state.alwaysOnTop ? 'active' : ''}" id="always-on-top-btn">Always on top</button>
         <div class="update-menu">
@@ -89,6 +90,7 @@ const elements = {
   screenSetupBtn: document.getElementById('screen-setup-btn'),
   captureOnceBtn: document.getElementById('capture-once-btn'),
   scanCardsBtn: document.getElementById('scan-cards-btn'),
+  autoScanBtn: document.getElementById('auto-scan-btn'),
   screenSetupLayer: document.getElementById('screen-setup-layer'),
   selectPlayerRegion: document.getElementById('select-player-region'),
   selectDealerRegion: document.getElementById('select-dealer-region'),
@@ -116,6 +118,8 @@ const elements = {
 };
 
 let saveTimer;
+let autoScanTimer = null;
+let autoScanRunning = false;
 function persistSoon() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => saveSettings(state), 120);
@@ -224,6 +228,30 @@ async function scanCapturedCards() {
   persistSoon();
 }
 
+async function runAutoScanTick() {
+  if (!state.autoScanMode || autoScanRunning) return;
+  autoScanRunning = true;
+  try {
+    await captureSelectedRegions();
+    await scanCapturedCards();
+  } catch (error) {
+    elements.captureStatus.textContent = `Auto scan failed: ${error.message}`;
+  } finally {
+    autoScanRunning = false;
+  }
+}
+
+function syncAutoScanTimer() {
+  if (autoScanTimer) {
+    clearInterval(autoScanTimer);
+    autoScanTimer = null;
+  }
+  if (state.autoScanMode) {
+    autoScanTimer = setInterval(runAutoScanTick, 1200);
+    runAutoScanTick();
+  }
+}
+
 function render() {
   elements.splitLayout.style.setProperty('--left-ratio', state.compactMode ? 1 : state.dividerRatio);
   document.querySelector('.desktop-shell').classList.toggle('compact-mode', state.compactMode);
@@ -232,6 +260,8 @@ function render() {
   elements.overlayModeBtn.textContent = state.overlayMode ? 'Full app' : 'Overlay mode';
   elements.overlayModeBtn.classList.toggle('active', !!state.overlayMode);
   elements.alwaysOnTopBtn.classList.toggle('active', !!state.alwaysOnTop);
+  elements.autoScanBtn.textContent = state.autoScanMode ? 'Auto scan on' : 'Auto scan';
+  elements.autoScanBtn.classList.toggle('active', !!state.autoScanMode);
   renderScreenSetup();
   renderStrategyPane(elements.strategyRoot, state, () => {
     render();
@@ -319,6 +349,16 @@ elements.scanCardsBtn.addEventListener('click', () => {
   scanCapturedCards().catch((error) => {
     elements.captureStatus.textContent = `Scan failed: ${error.message}`;
   });
+});
+
+elements.autoScanBtn.addEventListener('click', () => {
+  state.autoScanMode = !state.autoScanMode;
+  elements.captureStatus.textContent = state.autoScanMode
+    ? 'Auto scan is running. It will keep capturing regions and fill confident hands.'
+    : 'Auto scan stopped.';
+  render();
+  syncAutoScanTimer();
+  persistSoon();
 });
 
 elements.useRecognitionBtn.addEventListener('click', () => {
@@ -442,4 +482,5 @@ window.addEventListener('keydown', (event) => {
   }
 });
 
+syncAutoScanTimer();
 persistSoon();
