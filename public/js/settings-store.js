@@ -3,6 +3,7 @@ const STORAGE_KEY = 'blackjack-desktop-renderer-v1';
 const defaults = {
   dividerRatio: 0.62,
   compactMode: false,
+  overlayMode: false,
   streamUrl: 'https://www.youtube.com/',
   browserHome: 'https://www.youtube.com/',
   chartVisible: false,
@@ -48,6 +49,7 @@ export async function saveSettings(state) {
   const localPayload = {
     dividerRatio: state.dividerRatio,
     compactMode: state.compactMode,
+    overlayMode: state.overlayMode,
     streamUrl: state.streamUrl,
     browserHome: state.browserHome,
     chartVisible: state.chartVisible,
@@ -65,6 +67,7 @@ export async function saveSettings(state) {
     await window.desktopAPI.setSettings({
       dividerRatio: state.dividerRatio,
       compactMode: state.compactMode,
+      overlayMode: state.overlayMode,
       streamUrl: state.streamUrl,
       alwaysOnTop: state.alwaysOnTop
     });

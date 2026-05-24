@@ -6,6 +6,7 @@ const DEFAULT_SETTINGS = {
   dividerRatio: 0.62,
   alwaysOnTop: false,
   compactMode: false,
+  overlayMode: false,
   streamUrl: 'https://www.youtube.com/'
 };
 

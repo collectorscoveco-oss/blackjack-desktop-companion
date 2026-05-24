@@ -27,6 +27,17 @@ input { user-select: text; }
 .toolbar-actions, .top-actions, .token-row, .toggle-grid, .inline-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .split-layout { display: grid; grid-template-columns: minmax(420px, calc(var(--left-ratio, .62) * 100%)) 10px minmax(360px, 1fr); gap: 0; min-height: calc(100vh - 108px); }
 .desktop-shell.compact-mode .split-layout { grid-template-columns: 1fr 0 0; }
+.desktop-shell.overlay-mode { max-width: 620px; min-height: auto; padding: 10px; background: transparent; }
+.desktop-shell.overlay-mode .app-header { padding: 10px 12px; border-radius: 16px; }
+.desktop-shell.overlay-mode .app-header h1 { font-size: 1rem; }
+.desktop-shell.overlay-mode .app-header .eyebrow { display: none; }
+.desktop-shell.overlay-mode .split-layout { display: block; min-height: auto; }
+.desktop-shell.overlay-mode .browser-pane,
+.desktop-shell.overlay-mode .splitter { display: none; }
+.desktop-shell.overlay-mode .strategy-pane { max-height: calc(100vh - 92px); padding: 10px; border-radius: 16px; }
+.desktop-shell.overlay-mode .strategy-topbar h2 { font-size: 1rem; }
+.desktop-shell.overlay-mode .result-card { padding: 14px; border-radius: 16px; }
+.desktop-shell.overlay-mode .result-action { font-size: clamp(2rem, 12vw, 4.2rem); }
 .browser-pane { display: grid; grid-template-rows: auto 1fr auto; min-width: 0; overflow: hidden; }
 .strategy-pane { overflow: auto; padding: 14px; min-width: 0; }
 .desktop-shell.compact-mode .strategy-pane,

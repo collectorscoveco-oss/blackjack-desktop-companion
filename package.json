@@ -1,12 +1,13 @@
 {
-  "name": "blackjack-desktop-companion",
+  "name": "blackjack-overlay",
   "version": "2.0.0",
   "private": true,
-  "description": "Electron desktop blackjack companion with embedded stream viewer and local basic strategy assistant.",
+  "description": "Electron desktop blackjack overlay with manual basic strategy assistant.",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
+    "test": "node --test tests/*.test.mjs",
     "dist": "electron-builder --win nsis",
     "dist:win": "electron-builder --win nsis"
   },
@@ -18,8 +19,8 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "ai.openclaw.blackjackdesktop",
-    "productName": "Blackjack Desktop Companion",
+    "appId": "ai.openclaw.blackjackoverlay",
+    "productName": "Blackjack Overlay",
     "directories": {
       "output": "dist"
     },
@@ -45,7 +46,7 @@
       "perMachine": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Blackjack Desktop Companion"
+      "shortcutName": "Blackjack Overlay"
     }
   }
 }

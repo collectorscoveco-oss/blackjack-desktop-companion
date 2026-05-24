@@ -1,6 +1,6 @@
-# Blackjack Desktop Companion
+# Blackjack Overlay
 
-A local-only Electron desktop app for watching a blackjack stream in one pane and using a manual **basic strategy** helper in the other.
+A local-only Electron desktop app for using a manual **basic strategy** helper while playing blackjack online. It starts as a reliable manual fallback and is designed to evolve into a screen-aware overlay.
 
 ## Features
 
@@ -9,10 +9,12 @@ A local-only Electron desktop app for watching a blackjack stream in one pane an
   - Right: blackjack basic strategy assistant
 - **Resizable split view** with draggable divider
 - **Always-on-top** toggle
+- **Overlay mode** that hides the browser pane and turns the strategy helper into a compact always-on-top panel
 - **Compact mode** to hide the strategy pane quickly
 - **Saved preferences**
   - divider position
   - always-on-top state
+  - overlay mode state
   - compact mode state
   - last-used stream URL
 - **Manual local strategy logic**

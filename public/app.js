@@ -6,13 +6,14 @@ const state = await loadSettings();
 
 const app = document.getElementById('app');
 app.innerHTML = `
-  <div class="desktop-shell ${state.compactMode ? 'compact-mode' : ''}">
+  <div class="desktop-shell ${state.compactMode ? 'compact-mode' : ''} ${state.overlayMode ? 'overlay-mode' : ''}">
     <header class="app-header">
       <div>
         <div class="eyebrow">Desktop blackjack companion</div>
         <h1>Stream Viewer + Strategy Assistant</h1>
       </div>
       <div class="toolbar-actions">
+        <button class="ui-btn secondary ${state.overlayMode ? 'active' : ''}" id="overlay-mode-btn">${state.overlayMode ? 'Full app' : 'Overlay mode'}</button>
         <button class="ui-btn secondary" id="toggle-pane-btn">${state.compactMode ? 'Show strategy' : 'Hide strategy'}</button>
         <button class="ui-btn secondary ${state.alwaysOnTop ? 'active' : ''}" id="always-on-top-btn">Always on top</button>
       </div>
@@ -45,6 +46,7 @@ const elements = {
   splitter: document.getElementById('splitter'),
   strategyRoot: document.getElementById('strategy-root'),
   togglePaneBtn: document.getElementById('toggle-pane-btn'),
+  overlayModeBtn: document.getElementById('overlay-mode-btn'),
   alwaysOnTopBtn: document.getElementById('always-on-top-btn'),
   webview: document.getElementById('stream-webview'),
   urlInput: document.getElementById('stream-url'),
@@ -63,7 +65,10 @@ function persistSoon() {
 function render() {
   elements.splitLayout.style.setProperty('--left-ratio', state.compactMode ? 1 : state.dividerRatio);
   document.querySelector('.desktop-shell').classList.toggle('compact-mode', state.compactMode);
+  document.querySelector('.desktop-shell').classList.toggle('overlay-mode', state.overlayMode);
   elements.togglePaneBtn.textContent = state.compactMode ? 'Show strategy' : 'Hide strategy';
+  elements.overlayModeBtn.textContent = state.overlayMode ? 'Full app' : 'Overlay mode';
+  elements.overlayModeBtn.classList.toggle('active', !!state.overlayMode);
   elements.alwaysOnTopBtn.classList.toggle('active', !!state.alwaysOnTop);
   renderStrategyPane(elements.strategyRoot, state, () => {
     render();
@@ -95,6 +100,19 @@ window.addEventListener('mousemove', (event) => {
 
 elements.togglePaneBtn.addEventListener('click', () => {
   state.compactMode = !state.compactMode;
+  render();
+  persistSoon();
+});
+
+elements.overlayModeBtn.addEventListener('click', async () => {
+  state.overlayMode = !state.overlayMode;
+  if (state.overlayMode) {
+    state.compactMode = false;
+    state.alwaysOnTop = true;
+    if (window.desktopAPI?.setAlwaysOnTop) {
+      await window.desktopAPI.setAlwaysOnTop(true);
+    }
+  }
   render();
   persistSoon();
 });
