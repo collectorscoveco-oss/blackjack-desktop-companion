@@ -9,8 +9,8 @@ app.innerHTML = `
   <div class="desktop-shell ${state.compactMode ? 'compact-mode' : ''} ${state.overlayMode ? 'overlay-mode' : ''}">
     <header class="app-header">
       <div>
-        <div class="eyebrow">Desktop blackjack companion</div>
-        <h1>Stream Viewer + Strategy Assistant</h1>
+        <div class="eyebrow">Blackjack overlay</div>
+        <h1>Strategy Assistant</h1>
       </div>
       <div class="toolbar-actions">
         <button class="ui-btn secondary ${state.overlayMode ? 'active' : ''}" id="overlay-mode-btn">${state.overlayMode ? 'Full app' : 'Overlay mode'}</button>
