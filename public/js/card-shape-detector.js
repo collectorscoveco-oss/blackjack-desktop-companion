@@ -161,8 +161,10 @@ export function detectCardRank(imageData, shape, options = {}) {
 
 export function buildAutoRecognitionSuggestion({ playerImageData, dealerImageData, playerShapes = [], dealerShapes = [] } = {}) {
   const playerRanks = playerShapes.map((shape) => detectCardRank(playerImageData, shape)?.rank);
-  const dealerRanks = dealerShapes.map((shape) => detectCardRank(dealerImageData, shape)?.rank);
-  if (playerRanks.length === 0 || dealerRanks.length !== 1 || playerRanks.some((rank) => !rank) || !dealerRanks[0]) {
+  const dealerRanks = dealerShapes
+    .map((shape) => detectCardRank(dealerImageData, shape)?.rank)
+    .filter(Boolean);
+  if (playerRanks.length === 0 || dealerRanks.length !== 1 || playerRanks.some((rank) => !rank)) {
     return null;
   }
   return {
@@ -179,5 +181,5 @@ export function summarizeCardShapeScan({ playerShapes = [], dealerShapes = [], s
   }
   const playerLabel = playerShapes.length === 1 ? '1 player card shape' : `${playerShapes.length} player card shapes`;
   const dealerLabel = dealerShapes.length === 1 ? '1 dealer card shape' : `${dealerShapes.length} dealer card shapes`;
-  return `Detected ${playerLabel} and ${dealerLabel}. Rank reading comes next.`;
+  return `Detected ${playerLabel} and ${dealerLabel}, but could not confidently read every needed rank yet.`;
 }

@@ -139,6 +139,23 @@ test('builds an auto recognition suggestion when all player and dealer ranks are
   assert.equal(suggestion.summary, 'Auto-detected player K,6 vs dealer 10. Confirm to use this hand.');
 });
 
+test('ignores unreadable dealer card backs when one dealer upcard rank is readable', () => {
+  const playerImageData = makeCardRegionWithRanks(['6', 'K']);
+  const dealerImageData = makeImageData(220, 90);
+  paintRect(dealerImageData, { x: 18, y: 24, width: 42, height: 58 }, [235, 235, 225]);
+  paintRect(dealerImageData, { x: 72, y: 14, width: 42, height: 62 });
+  drawRank(dealerImageData, 'K', 78, 19, 3);
+  const playerShapes = detectBrightCardShapes(playerImageData);
+  const dealerShapes = detectBrightCardShapes(dealerImageData, { minAreaRatio: 0.015 });
+
+  const suggestion = buildAutoRecognitionSuggestion({ playerImageData, dealerImageData, playerShapes, dealerShapes });
+
+  assert.equal(dealerShapes.length, 2);
+  assert.deepEqual(suggestion.playerCards, ['6', 'K']);
+  assert.equal(suggestion.dealerCard, 'K');
+  assert.equal(suggestion.summary, 'Auto-detected player 6,K vs dealer K. Confirm to use this hand.');
+});
+
 test('does not build an auto suggestion when a rank is unreadable', () => {
   const playerImageData = makeCardRegionWithRanks(['K']);
   const dealerImageData = makeImageData(100, 80, [{ x: 12, y: 14, width: 42, height: 62 }]);
@@ -152,7 +169,7 @@ test('does not build an auto suggestion when a rank is unreadable', () => {
 
 test('summarizes player and dealer card-shape scan results for the UI', () => {
   assert.equal(
-    summarizeCardShapeScan({ playerShapes: [{}, {}], dealerShapes: [{}] }),
-    'Detected 2 player card shapes and 1 dealer card shape. Rank reading comes next.'
+    summarizeCardShapeScan({ playerShapes: [{}, {}], dealerShapes: [{}, {}] }),
+    'Detected 2 player card shapes and 2 dealer card shapes, but could not confidently read every needed rank yet.'
   );
 });
