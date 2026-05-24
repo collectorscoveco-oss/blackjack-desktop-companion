@@ -6,6 +6,7 @@ const packageJson = JSON.parse(await readFile(new URL('../package.json', import.
 
 test('packaged app is configured to publish updates from GitHub Releases', () => {
   assert.equal(packageJson.dependencies['electron-updater'].startsWith('^'), true);
+  assert.equal(packageJson.build.win.artifactName, 'Blackjack-Overlay-Setup-${version}.${ext}');
   assert.deepEqual(packageJson.build.publish, [
     {
       provider: 'github',

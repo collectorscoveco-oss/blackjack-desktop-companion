@@ -45,7 +45,7 @@
           ]
         }
       ],
-      "artifactName": "${productName}-Setup-${version}.${ext}"
+      "artifactName": "Blackjack-Overlay-Setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
