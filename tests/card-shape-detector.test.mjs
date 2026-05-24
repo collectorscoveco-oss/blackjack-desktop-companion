@@ -90,6 +90,33 @@ test('ignores tiny bright chips and text that are not card sized', () => {
   assert.deepEqual(shapes[0].bounds, { x: 40, y: 12, width: 35, height: 52 });
 });
 
+test('detects small card shapes inside a wide black-padded capture preview', () => {
+  const imageData = makeImageData(900, 120);
+  for (let i = 0; i < imageData.width * imageData.height; i += 1) {
+    imageData.data[i * 4] = 0;
+    imageData.data[i * 4 + 1] = 4;
+    imageData.data[i * 4 + 2] = 10;
+  }
+  paintRect(imageData, { x: 420, y: 8, width: 95, height: 104 }, [10, 100, 12]);
+  paintRect(imageData, { x: 452, y: 34, width: 27, height: 47 });
+  paintRect(imageData, { x: 485, y: 28, width: 28, height: 49 });
+
+  const shapes = detectBrightCardShapes(imageData);
+
+  assert.equal(shapes.length, 2);
+  assert.deepEqual(shapes.map((shape) => shape.bounds), [
+    { x: 452, y: 34, width: 27, height: 47 },
+    { x: 485, y: 28, width: 28, height: 49 }
+  ]);
+});
+
+test('summarizes empty scans with setup guidance instead of a dead-end zero count', () => {
+  assert.equal(
+    summarizeCardShapeScan({ playerShapes: [], dealerShapes: [] }),
+    'No card shapes found. Try tighter boxes around only the cards, then Capture once and Scan cards again.'
+  );
+});
+
 test('detects a simple dark corner rank from a bright card shape', () => {
   const imageData = makeCardRegionWithRanks(['A']);
   const [shape] = detectBrightCardShapes(imageData);

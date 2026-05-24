@@ -18,13 +18,15 @@ function componentBounds(component) {
   };
 }
 
-function isCardSized(bounds, imageData, minAreaRatio) {
+function isCardSized(bounds, imageData, options = {}) {
   const area = bounds.width * bounds.height;
   const imageArea = imageData.width * imageData.height;
   const aspect = bounds.width / bounds.height;
-  return area >= imageArea * minAreaRatio
-    && bounds.width >= 18
-    && bounds.height >= 28
+  const minAreaRatio = options.minAreaRatio ?? 0.025;
+  const minArea = options.minArea ?? 900;
+  return (area >= imageArea * minAreaRatio || area >= minArea)
+    && bounds.width >= (options.minWidth ?? 18)
+    && bounds.height >= (options.minHeight ?? 28)
     && aspect >= 0.38
     && aspect <= 0.95;
 }
@@ -32,7 +34,6 @@ function isCardSized(bounds, imageData, minAreaRatio) {
 export function detectBrightCardShapes(imageData, options = {}) {
   if (!imageData?.data || !imageData.width || !imageData.height) return [];
   const { width, height, data } = imageData;
-  const minAreaRatio = options.minAreaRatio ?? 0.025;
   const visited = new Uint8Array(width * height);
   const shapes = [];
 
@@ -67,7 +68,7 @@ export function detectBrightCardShapes(imageData, options = {}) {
       }
 
       const bounds = componentBounds(component);
-      if (isCardSized(bounds, imageData, minAreaRatio)) {
+      if (isCardSized(bounds, imageData, options)) {
         shapes.push({ bounds, pixels: component.pixels });
       }
     }
@@ -173,6 +174,9 @@ export function buildAutoRecognitionSuggestion({ playerImageData, dealerImageDat
 
 export function summarizeCardShapeScan({ playerShapes = [], dealerShapes = [], suggestion = null } = {}) {
   if (suggestion) return suggestion.summary;
+  if (playerShapes.length === 0 && dealerShapes.length === 0) {
+    return 'No card shapes found. Try tighter boxes around only the cards, then Capture once and Scan cards again.';
+  }
   const playerLabel = playerShapes.length === 1 ? '1 player card shape' : `${playerShapes.length} player card shapes`;
   const dealerLabel = dealerShapes.length === 1 ? '1 dealer card shape' : `${dealerShapes.length} dealer card shapes`;
   return `Detected ${playerLabel} and ${dealerLabel}. Rank reading comes next.`;
